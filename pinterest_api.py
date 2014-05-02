@@ -1,48 +1,107 @@
-import json
 from bottle import get, post, request, run
-from pymongo import Connection
 
-connection = Connection('localhost', 27017)
-db = connection.mydatabase
-
-@get('/')
+###
+#
+#   Registration - Retrieves user's name, username, and password and stores them in DB
+#   Input - name, username, password
+#   Response - 200, success, userID
+#
+###
+@post('/v1/reg')
 def home():
-    return "<h1>Welcome</h1><a href='/reg'>Register</a><br><a href='/login'>Login</a>"
-
-@get('/reg')
-def reg():
-    return "<h1>Create Account</h1><form method='POST'><input type='text' name='name'>" + "<input type='text' name='username'>" + "<input type='password' name='password'>" + "<input type='submit' value='submit'></form>"
-
-@post('/reg')
-def reg():
+    #get post data and create a user object
     name = request.forms.get('name')
     username = request.forms.get('username')
     password = request.forms.get('password')
     user = { "name" : name, "username" : username, "password" : password}
-    try:
-        db['user'].save(user)
-        return "<p>Account Created</p>"
-    except ValidationError as ve:
-        abort(400, str(ve))
     
-@get('/login')
-def get_login():
-    return "<form method='POST'><input type='text' name='username'><input type='submit' value='submit'></form>"
+    #put user in database
+    #get userID from newly created user
+    #return response
 
-@post('/login')
+###
+#
+#   Login - Retrieves user's username and password and checks for user in DB
+#   Input - username, password
+#   Response - 200, success, userID
+#
+###
+@post('/v1/login')
 def login():
     username = request.forms.get('username')
     password = request.forms.get('password')
     
-    return "<p>Welcome " + username + "</p>" + "<a href='/resources'>Add Resource</a>"
+    #check credentials against DB
+    #get userID if credentials clear
+    #return response
     
-@get('/resources')
-def reg():
-    resource_id = 123
-    return "<a href='/resources/{resource_id}'>iPhone 5</a>"
-
-@get('/resources/<resource_id>')
-def reg(resource_id):
-    return "<p>iPhone 5</p><a href='/add'>Add Resource</a>"
+###
+#
+#   Get User - Retrieves user info from DB
+#   Input
+#   Response - 200, success, user {name, boards[]}
+#
+###
+@get('/v1/<userID>')
+def get_user():
+    
+    #based on userID, retreive name and boards list from DB
+    #return response
+    
+###
+#
+#   Add Board - Creates a new board in the DB
+#   Input - boardName, 
+#   Response - 200, success, boardID
+#
+###
+@post('/v1/<userID>/board')
+def add_board():
+    
+    #Retrieves board name and enters it into DB
+    #get boardID from newly created board
+    #return response
+    
+###
+#
+#   Get Board - Get board from the DB
+#   Input -  
+#   Response - 200, success, board {boardName, pins[]}
+#
+###
+@get('/v1/<userID>/board/<boardID>')
+def get_board():
+    
+    #Retrieves board from DB
+    #????? May include Pin info ?????
+    #return response
+    
+###
+#
+#   Add Pin - Creates a new pin in the DB, includes upload of image to file system
+#   Input - pinName, pinURL
+#   Response - 200, success, pinID
+#
+###
+@post('/v1/<userID>/board/<boardID>/pin')
+def add_pin():
+    
+    #Retrieves pin name and enters it into DB
+    #????? How are we going to do the upload image part ?????
+    #get pinID from newly created pin
+    #return response
+    
+###
+#
+#   Get Pin - Get pin from the DB
+#   Input -  
+#   Response - 200, success, pin {pinName, pinURL, comments[]}
+#
+###
+@get('/v1/<userID>/board/<boardID>/pin/<pinID>')
+def get_board():
+    
+    #Retrieves pin from DB
+    #return response
 
 run()
