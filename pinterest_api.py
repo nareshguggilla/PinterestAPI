@@ -1,14 +1,6 @@
-import StringIO
+import functions
 import json
-import os
 from bottle import get, post, delete, request, run
-
-# Global Variables
-global_user_id = 0
-global_board_id = 0
-global_pin_id = 0
-
-# TODO: Connection to Datbase
 
 
 ###                                     ###                                  
@@ -29,18 +21,15 @@ global_pin_id = 0
 # To Test Use:
 #   curl -X POST -H "Content-Type: application/json" -d '{"name":"xxxx","username":"xxxx","password":"xxxx"}' http://localhost:8080/v1/reg
 
-@post('v1/reg')
+@post('/v1/reg')
 def reg():
     r = json.load(request.body)
     name = r['name']
     username = r['username']
     password = r['password']
-    
-    # TODO: Enter user into database
-    
-    ### return user_id = gloabl_user_id
-    user_id = global_user_id
-    return { "success" : True, "status" : 201, "data" : { "user_id" : user_id }}
+    user_id = functions.addUser(name, username, password)
+    if (user_id):
+        return {"status": 200, "success": True, "data": {"user_id": user_id}}
 
 ###
 #
@@ -52,16 +41,16 @@ def reg():
 # To Test Use:
 #   curl -X POST -H "Content-Type: application/json" -d '{"username":"xxxx","password":"xxxx"}' http://localhost:8080/v1/login
 
-@post('v1/login')
+@post('/v1/login')
 def login():
     r = json.load(request.body)
     username = r['username']
     password = r['password']
-    
-    # TODO: Check user against database, verify credentials, and request user_id
-    
-    ### return user_id
-    return { "success" : True, "status" : 200, "data" : { "user_id" : user_id }}
+    res = functions.loginUser(username, password)
+    if res['success'] == True:
+        return {"status": 200, "success": True, "data": {"user_id": res["user_id"]}}
+    else:
+        return {"status": 401, "success": False, "message" : res["message"]}
 
 
 
@@ -86,9 +75,10 @@ def login():
 
 @get('/v1/user/<user_id>')
 def get_user(user_id):
-    return "It Worked" + user_id
-    #based on userID, retreive name and boards list from DB
-    #return response
+    data = functions.getUser(user_id)
+    user = {"name": data["name"], "boards": data["boards"]}
+    if data:
+        return {"status": 200, "success": True, "data": user}
 
 ###
 #
@@ -98,11 +88,12 @@ def get_user(user_id):
 #
 ###
 @post('/v1/user/<user_id>/board')
-def add_board():
-    return "Something"
-    #Retrieves board name and enters it into DB
-    #get boardID from newly created board
-    #return response
+def add_board(user_id):
+    r = json.load(request.body)
+    board_name = r['board_name']
+    board_id = functions.addBoard(board_name)
+    if functions.updateUser(user_id, board_id):
+        return {"status": 200, "success": True, "data": board_id}
 
 ###
 #
