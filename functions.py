@@ -10,6 +10,7 @@ next_uid = 1
 next_board_id = 1
 next_pin_id = 1
 
+# Setup initial values for next ids of users, boards and pins
 def setup():
     global next_uid
     global next_board_id

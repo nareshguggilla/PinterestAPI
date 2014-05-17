@@ -3,7 +3,7 @@ import json
 import os.path
 from bottle import get, post, delete, request, run
 
-
+# Database Startup
 functions.setup()
 
 #   Root Path /  #
